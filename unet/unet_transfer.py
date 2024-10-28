@@ -187,7 +187,24 @@ class UNetResNet(nn.Module):
             bottom_channel_nr = 2048
         else:
             raise NotImplementedError('only 34, 101, 152 version of Resnet are implemented')
+    # def __init__(self, encoder_depth, num_classes, num_filters=32, dropout_2d=0.2,
+    #              weights=None, is_deconv=False):  # Change 'pretrained' to 'weights'
+    #     super().__init__()
+    #     self.num_classes = num_classes
+    #     self.dropout_2d = dropout_2d
 
+    #     # Update the encoder initialization to use the weights parameter
+    #     if encoder_depth == 34:
+    #         self.encoder = models.resnet34(weights=weights)  # Use weights parameter
+    #         bottom_channel_nr = 512
+    #     elif encoder_depth == 101:
+    #         self.encoder = models.resnet101(weights=weights)  # Use weights parameter
+    #         bottom_channel_nr = 2048
+    #     elif encoder_depth == 152:
+    #         self.encoder = models.resnet152(weights=weights)  # Use weights parameter
+    #         bottom_channel_nr = 2048
+    #     else:
+    #         raise NotImplementedError('only 34, 101, 152 version of ResNet are implemented')
         self.pool = nn.MaxPool2d(2, 2)
 
         self.relu = nn.ReLU(inplace=True)

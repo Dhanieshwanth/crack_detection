@@ -6,6 +6,7 @@ import random
 import numpy as np
 
 import torch
+import torchvision.models as models
 import tqdm
 from unet.unet_transfer import UNet16, UNetResNet
 
@@ -27,7 +28,8 @@ class AverageMeter(object):
         self.avg = self.sum / self.count
 
 def cuda(x):
-    return x.cuda(async=True) if torch.cuda.is_available() else x
+    return x.cuda(non_blocking=True) if torch.cuda.is_available() else x
+
 
 def write_event(log, step, **data):
     data['step'] = step
@@ -71,6 +73,32 @@ def load_unet_vgg16(model_path):
     model.eval()
 
     return model
+
+
+# def load_unet_resnet_101(model_path):
+#     # Initialize the UNetResNet model with weights
+#     model = UNetResNet(encoder_depth=101, num_classes=1, weights=models.ResNet101_Weights.DEFAULT)  # Use DEFAULT for latest weights
+
+#     # Load the model checkpoint with weights_only
+#     checkpoint = torch.load(model_path, weights_only=True)
+
+#     # Check for the correct key to load the state dict
+#     if 'model' in checkpoint:
+#         model.load_state_dict(checkpoint['model'])
+#     elif 'state_dict' in checkpoint:
+#         model.load_state_dict(checkpoint['state_dict'])
+#     else:
+#         raise Exception('Undefined model format in checkpoint')
+
+#     # Move the model to the GPU (if available)
+#     model = model.cuda()
+
+#     # Set the model to evaluation mode
+#     model.eval()
+
+#     return model
+
+
 
 def load_unet_resnet_101(model_path):
     model = UNetResNet(pretrained=True, encoder_depth=101, num_classes=1)
