@@ -1,0 +1,16 @@
+
+torch
+torchvision
+numpy<2
+tqdm
+ml-collections
+medpy
+scipy
+h5py
+opencv-python
+einops
+timm
+yacs
+scikit-learn
+tensorflow 
+opencv-python

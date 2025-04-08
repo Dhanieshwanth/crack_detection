@@ -1,0 +1,77 @@
+
+FROM osrf/ros:humble-desktop-full
+
+ENV DEBIAN_FRONTEND=noninteractive
+ENV cuda_version_dashed=11-8
+ENV cudnn_version=8.6.0.163-1+cuda11.8
+ENV tensorrt_version=8.5.3-1+cuda11.8
+
+
+RUN apt-get update && apt-get install -y \
+    curl \
+    gnupg2 \
+    wget \
+    lsb-release \
+    python3-pip python3-venv python3-opencv \
+    && rm -rf /var/lib/apt/lists/*
+
+
+RUN wget https://developer.download.nvidia.com/compute/cuda/repos/ubuntu2004/x86_64/cuda-keyring_1.1-1_all.deb && \
+    dpkg -i cuda-keyring_1.1-1_all.deb && \
+    rm cuda-keyring_1.1-1_all.deb
+RUN apt-get update && \
+    apt-get install -y cuda-toolkit-${cuda_version_dashed}
+ENV PATH=/usr/local/cuda/bin:${PATH}
+ENV LD_LIBRARY_PATH=/usr/local/cuda/lib64:${LD_LIBRARY_PATH}
+
+
+RUN apt-get install -y \
+    libcudnn8=${cudnn_version} \
+    libcudnn8-dev=${cudnn_version} && \
+    apt-mark hold libcudnn8 libcudnn8-dev
+
+
+RUN apt-get install -y \
+    libnvinfer8=${tensorrt_version} \
+    libnvonnxparsers8=${tensorrt_version} \
+    libnvparsers8=${tensorrt_version} \
+    libnvinfer-plugin8=${tensorrt_version} \
+    libnvinfer-dev=${tensorrt_version} \
+    libnvonnxparsers-dev=${tensorrt_version} \
+    libnvparsers-dev=${tensorrt_version} \
+    libnvinfer-plugin-dev=${tensorrt_version} && \
+    apt-mark hold \
+        libnvinfer8 libnvonnxparsers8 libnvparsers8 libnvinfer-plugin8 \
+        libnvinfer-dev libnvonnxparsers-dev libnvparsers-dev libnvinfer-plugin-dev
+
+
+RUN apt-get update && apt-get install -y \
+    python3-colcon-common-extensions \
+    ros-humble-rclpy \
+    ros-humble-sensor-msgs \
+    ros-humble-cv-bridge \
+    ros-humble-image-transport \
+    ros-humble-std-msgs \
+    nano \
+    && rm -rf /var/lib/apt/lists/*
+
+
+RUN echo "source /opt/ros/humble/setup.bash" >> ~/.bashrc
+
+WORKDIR /LESCSFormer_inference
+
+
+RUN pip install --no-cache-dir torch torchvision torchaudio --index-url https://download.pytorch.org/whl/cu117
+
+
+COPY requirements.txt .
+RUN pip install --no-cache-dir -r requirements.txt
+
+COPY . .
+COPY epoch_99.pth /LESCSFormer_inference/epoch_99.pth
+
+
+SHELL ["/bin/bash", "-c"]
+
+
+# CMD ["python3", "/LESCSFormer_inference/testing.py"]
